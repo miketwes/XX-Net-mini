@@ -22,32 +22,71 @@ Mini版XX-Net特点:
 Mini版XX-Net, 在Linux和Windows环境下正常运行(其他环境未作测试)
 
 Usage: 
+
+用pip安装相关模块
     
     pip install hyper PyOpenSSL dnslib PySocks
-    git clone https://github.com/miketwes/XX-Net-mini.git
+
+模块安装好以后是以下模块:
     
-    # Linux: 
+     pip list  
+     Package      Version
+     ------------ -------
+     cffi         1.14.2
+     cryptography 3.1
+     dnslib       0.9.14
+     h2           2.6.2
+     hpack        3.0.0
+     hyper        0.7.0
+     hyperframe   3.2.0
+     pip          20.2.2
+     pycparser    2.20
+     pyOpenSSL    19.1.0
+     PySocks      1.7.1
+     setuptools   47.1.0
+     six          1.15.0
+
+下载或克隆XX-Net-mini
+
+    git clone https://github.com/miketwes/XX-Net-mini.git
+
+Linux用户:
+
     cd XX-Net-mini/code/default/launcher && python3 start.py
     
-    # Windows:
+Windows用户:
+
     cd XX-Net-mini\code\default\launcher && python start.py
+
+如果提示 Press Enter to continue...
+说明有错误出现, 可修改 XX-Net/code/default/lib/noarch/xlog.py 中的 self.min_level = FATAL 为 self.min_level = NOTSET,
+以显示详细错误信息
+ 
+如果不出现 Network is ok, you can start to surf the internet! 的提示,  说明有Ipv6网络有问题
+
+
+正常运行截图:
+Linux:
+
+![l1](https://user-images.githubusercontent.com/6849681/91863827-1a667200-eca2-11ea-81cb-d899bed2394f.png)
+
+Windows:
+
+![w1](https://user-images.githubusercontent.com/6849681/91863873-26eaca80-eca2-11ea-82d1-b1c847d0a18f.png)
+
     
-    
-    Please wait 1 or 2 seconds, till the terminal show:
-        "Network is ok, you can start to surf the internet!"
-    
-    # Chromium
+Chromium
 
         chromium --proxy-server="http://127.0.0.1:8087"
     
-    # Firefox 
+Firefox 
     
         about:config
         network.proxy.type 1     
         network.proxy.http 127.0.0.1
         network.proxy.http_port 8087
    
-    # Using your app id:
+Using your app id:
     
         put your appids in XX-Net-mini/data/config.json
     
