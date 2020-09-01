@@ -1,7 +1,7 @@
 #### XX-Net-mini 4.5.1
 Mini version of [XX-Net](https://github.com/XX-net/XX-Net).
 
-Mini版XX-Net特点:
+Mini版XX-Net特点
 
 1. 使用最新版XX-Net
 
@@ -27,7 +27,7 @@ Usage:
     
     pip install hyper PyOpenSSL dnslib PySocks
 
-模块安装好以后是以下模块:
+模块安装好以后是以下模块
     
      pip list  
      Package      Version
@@ -50,11 +50,11 @@ Usage:
 
     git clone https://github.com/miketwes/XX-Net-mini.git
 
-Linux用户:
+Linux用户
 
     cd XX-Net-mini/code/default/launcher && python3 start.py
     
-Windows用户:
+Windows用户
 
     cd XX-Net-mini\code\default\launcher && python start.py
 
@@ -65,7 +65,8 @@ Windows用户:
 如果不出现 Network is ok, you can start to surf the internet! 的提示,  说明有Ipv6网络有问题
 
 
-正常运行截图:
+正常运行截图
+
 Linux:
 
 ![l1](https://user-images.githubusercontent.com/6849681/91863827-1a667200-eca2-11ea-81cb-d899bed2394f.png)
@@ -86,7 +87,7 @@ Firefox
         network.proxy.http 127.0.0.1
         network.proxy.http_port 8087
    
-Using your app id:
+Using your app id
     
         put your appids in XX-Net-mini/data/config.json
     
