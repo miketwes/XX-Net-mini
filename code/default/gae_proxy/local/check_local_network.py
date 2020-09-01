@@ -1,0 +1,177 @@
+import sys
+import os
+import time
+import threading
+
+from config import config
+
+import simple_http_client
+from xlog import getLogger
+xlog = getLogger("gae_proxy")
+
+
+max_timeout = 5
+
+
+class CheckNetwork(object):
+    def __init__(self, type="IPv4"):
+        self.type = type
+        self.urls = []
+        self._checking_lock = threading.Lock()
+        self._checking_num = 0
+        self.network_stat = "unknown"
+        self.last_check_time = 0
+        self.continue_fail_count = 0
+
+        if config.PROXY_ENABLE:
+            if config.PROXY_USER:
+                self.proxy = "%s://%s:%s@%s:%d" % \
+                    (config.PROXY_TYPE, config.PROXY_USER, config.PROXY_PASSWD, config.PROXY_HOST, config.PROXY_PORT)
+            else:
+                self.proxy = "%s://%s:%d" % \
+                    (config.PROXY_TYPE, config.PROXY_HOST, config.PROXY_PORT)
+        else:
+            self.proxy = None
+
+        self.http_client = simple_http_client.Client(self.proxy, timeout=10)
+
+    def report_ok(self):
+        self.network_stat = "OK"
+        self.last_check_time = time.time()
+        self.continue_fail_count = 0
+
+    def report_fail(self):
+        self.continue_fail_count += 1
+        # don't record last_check_time here, it's not a real check
+        # last_check_time = time.time()
+
+        if self.continue_fail_count > 10:
+            # don't set network_stat to "unknown", wait for check
+            # network_stat = "unknown"
+            xlog.debug("report_connect_fail %s continue_fail_count:%d",
+                       self.type, self.continue_fail_count)
+            self.triger_check_network(True)
+
+    def get_stat(self):
+        if config.check_local_network_rules == "force_fail":
+            return "Fail"
+        elif config.check_local_network_rules == "force_ok":
+            return "OK"
+        else:
+            return self.network_stat
+
+    def is_ok(self):
+        if config.check_local_network_rules == "normal":
+            return self.network_stat == "OK"
+        elif config.check_local_network_rules == "force_fail":
+            return False
+        elif config.check_local_network_rules == "force_ok":
+            return True
+        else:
+            return self.network_stat == "OK"
+
+    def _test_host(self, url):
+        try:
+            header = {
+                "user-agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36",
+                "accept": "application/json, text/javascript, */*; q=0.01",
+                "accept-encoding": "gzip, deflate, sdch",
+                "accept-language": 'en-US,en;q=0.8,ja;q=0.6,zh-CN;q=0.4,zh;q=0.2',
+                "connection": "keep-alive"
+                }
+            response = self.http_client.request("HEAD", url, header, "", read_payload=False)
+            if response:
+                return True
+        except Exception as e:
+            if __name__ == "__main__":
+                xlog.exception("test %s e:%r", url, e)
+
+        return False
+
+    def _simple_check_worker(self):
+        time_now = time.time()
+
+        self._checking_lock.acquire()
+        self._checking_num += 1
+        self._checking_lock.release()
+
+        network_ok = False
+        for url in self.urls:
+            if self._test_host(url):
+                network_ok = True
+                break
+            else:
+                time.sleep(1)
+
+        if network_ok:
+            self.last_check_time = time.time()
+            self.report_ok()
+            if self.type == 'IPv6':
+                print("                Network is ok, you can start to surf the internet!")
+        else:
+            xlog.warn("network %s fail", self.type)
+            self.network_stat = "Fail"
+            self.last_check_time = time.time()
+
+        self._checking_lock.acquire()
+        self._checking_num -= 1
+        self._checking_lock.release()
+
+    def triger_check_network(self, fail=False, force=False):
+        time_now = time.time()
+        if not force:
+            if self._checking_num > 0:
+                return
+
+            if fail or self.network_stat != "OK":
+                # Fail or unknown
+                if time_now - self.last_check_time < 3:
+                    return
+            else:
+                if time_now - self.last_check_time < 10:
+                    return
+
+        self.last_check_time = time_now
+        threading.Thread(target=self._simple_check_worker).start()
+
+
+IPv4 = CheckNetwork("IPv4")
+IPv4.urls = [
+            "https://www.microsoft.com",
+            "https://www.apple.com",
+            "https://code.jquery.com",
+            "https://cdn.bootcss.com",
+            "https://cdnjs.cloudflare.com"]
+IPv4.triger_check_network()
+
+IPv6 = CheckNetwork("IPv6")
+IPv6.urls = ["https://ipv6.vm3.test-ipv6.com",
+             "http://[2001:470:1:18::115]",
+             "http://ipv6.lookup.test-ipv6.com",
+             "http://v6.myip.la"
+             ]
+IPv6.triger_check_network()
+
+
+def report_ok(ip):
+    if "." in ip:
+        IPv4.report_ok()
+    else:
+        IPv6.report_ok()
+
+
+def report_fail(ip):
+    if "." in ip:
+        IPv4.report_fail()
+    else:
+        IPv6.report_fail()
+
+
+def is_ok(ip=None):
+    if not ip:
+        return IPv4.is_ok() or IPv6.is_ok()
+    elif "." in ip:
+        return IPv4.is_ok()
+    else:
+        return IPv6.is_ok()
+
