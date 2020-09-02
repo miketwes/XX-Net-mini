@@ -19,32 +19,11 @@ Mini版XX-Net特点
 
 8. 统一配置文件: XX-Net/data/config.json
 
-Mini版XX-Net, 在Linux和Windows环境下正常运行(其他环境未作测试)
-
 Usage: 
 
 用pip安装相关模块
     
     pip install hyper PyOpenSSL dnslib PySocks
-
-模块安装好以后是以下模块
-    
-     pip list  
-     Package      Version
-     ------------ -------
-     cffi         1.14.2
-     cryptography 3.1
-     dnslib       0.9.14
-     h2           2.6.2
-     hpack        3.0.0
-     hyper        0.7.0
-     hyperframe   3.2.0
-     pip          20.2.2
-     pycparser    2.20
-     pyOpenSSL    19.1.0
-     PySocks      1.7.1
-     setuptools   47.1.0
-     six          1.15.0
 
 下载或克隆XX-Net-mini
 
@@ -64,6 +43,7 @@ Windows用户
  
 如果不出现 Network is ok, you can start to surf the internet! 的提示,  说明有Ipv6网络有问题
 
+Mini版XX-Net, 在Linux和Windows环境下正常运行(其他环境未作测试)
 
 正常运行截图
 
