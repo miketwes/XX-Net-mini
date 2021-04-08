@@ -28,7 +28,7 @@ XX-Net-mini 4.5.2 Mini version of [XX-Net](https://github.com/XX-net/XX-Net), Li
 如果不出现 
 
     Network is ok, you can start to surf the internet!
-的提示, 说明Ipv6网络有问题或宽带/DHCP未连接
+的提示, 说明Ipv6网络有问题或宽带/DHCP未连接, Ipv6网络问题可参考: [network IPv6 fail 怎么设置](https://github.com/miketwes/XX-Net-mini/issues/16)
 
 Linux chromium浏览器代理设置: 
 
